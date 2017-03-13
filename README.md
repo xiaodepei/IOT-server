@@ -1,7 +1,10 @@
 
-
+ OT-server is the server such as a routing which can manage IOT devices and can control devices with simple Http command in actice in any network environment ! you can make up your own IOT-platform！ sorry i haven't write the device code yet! if you r interested in ,you can join in ! 
+ 有想加入的小伙伴吗？
+ 快联系我！
+ 现在代码正在重构，，，，因为写在一起了，可读性太差不能看
 ![crystone](http://www.crystonetech.com/wp-content/uploads/2016/12/logop.png)
-
+                                     
 
 本平台可将以UDP/TCP为基础通讯的硬件设备进行群体调回（远程控制以及数据采集），支持高并发！开发者仅需要在通讯层按照本协议进行软件设计即可在地球上任何一个能接入互联网的地方对设备进行远程控制，不需要做任何网络/路由适配转发等等。并且对设备的控制仅需http协议即可（太TM无脑了）。
 
@@ -52,7 +55,7 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 
 - ####http指令发送：
 		请求数据：
-                    post：139.129.27.197:8001 （后期版本改为url）
+                    post:xxx.xxx.xx.xxx:8001 （后期版本改为url）
                           
 		携带参数：
                     body：admin  （简单验证机制，后续版本改善）	
@@ -91,7 +94,7 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 
 - ####设备添加：
         地址：
-                    post:139.129.27.197:8001/add
+                    post:xxx.xxx.xx.xxx:8001/add
 
         携带参数：
                     body:add
@@ -105,7 +108,7 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 
 - ####设备删除
         地址：
-                    post:139.129.27.197:8001/del
+                    post:xxx.xxx.xx.xxx:8001/del
 
         携带参数：
                     body:del
@@ -202,22 +205,7 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
     ①加入ACK信号，方便硬件确认数据完整性
     ②改为可视化控制台，自由配置通讯数据格式
     ③进一步优化性能，提高并发量
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+##原作者：小德培
+##weichat:Deathkingdom
+##QQ:990834049@qq.com
