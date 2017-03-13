@@ -1,14 +1,9 @@
-
- OT-server is the server such as a routing which can manage IOT devices and can control devices with simple Http command in actice in any network environment ! you can make up your own IOT-platform！ sorry i haven't write the device code yet! if you r interested in ,you can join in ! 
+#Crystalline
+###by-小德培
+Crystalline IOT-server is the server such as a routing which can manage IOT devices and can control devices with simple Http command in actice in any network environment ! you can make up your own IOT-platform！ sorry i haven't write the device code yet! if you r interested in ,you can join in ! 
  有想加入的小伙伴吗？
  快联系我！
- 现在代码正在重构，，，，因为写在一起了，可读性太差不能看
- 
- 
- 
- 
-![crystone](http://www.crystonetech.com/wp-content/uploads/2016/12/logop.png)
-                                     
+ 现在代码正在重构，，，，因为写在一起了，可读性太差不能看                                    
 
 本平台可将以UDP/TCP为基础通讯的硬件设备进行群体调回（远程控制以及数据采集），支持高并发！开发者仅需要在通讯层按照本协议进行软件设计即可在地球上任何一个能接入互联网的地方对设备进行远程控制，不需要做任何网络/路由适配转发等等。并且对设备的控制仅需http协议即可（太TM无脑了）。
 
