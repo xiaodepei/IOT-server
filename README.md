@@ -206,5 +206,5 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
     ③进一步优化性能，提高并发量
     
 ##原作者：小德培
-##weichat:Deathkingdom
+##Wechat:Deathkingdom
 ##QQ:990834049@qq.com
