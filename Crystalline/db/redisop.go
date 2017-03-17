@@ -94,17 +94,23 @@ func Add_device(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, " err ")
 	} else if "pass" == flag {
 		id := r.PostFormValue("id")
-		groupnum := r.PostFormValue("groupnum")
-		groupnumfloat, _ := strconv.ParseFloat(groupnum, 64)
-		err_add := Client0.ZAdd("1", redis.Z{0, id}).Err()
-		if err_add != nil {
-			fmt.Println("add failed:", err_add)
+		if 0 == Client0.ZRank("2", id).Val() {
+			groupnum := r.PostFormValue("groupnum")
+			groupnumfloat, _ := strconv.ParseFloat(groupnum, 64)
+			err_add := Client0.ZAdd("1", redis.Z{0, id}).Err()
+			if err_add != nil {
+				fmt.Println("add failed:", err_add)
+			}
+			err_add2 := Client0.ZAdd("2", redis.Z{groupnumfloat, id}).Err()
+			if err_add2 != nil {
+				fmt.Println("add2 failed:", err_add2)
+			}
+			fmt.Fprintf(w, "设备增加成功 ")
+
+		} else {
+			fmt.Fprintf(w, "该设备已注册")
 		}
-		err_add2 := Client0.ZAdd("2", redis.Z{groupnumfloat, id}).Err()
-		if err_add2 != nil {
-			fmt.Println("add2 failed:", err_add2)
-		}
-		fmt.Fprintf(w, " add OK ")
+
 	}
 
 }
@@ -119,20 +125,21 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, " err ")
 	} else if "pass" == flag {
 		id := r.PostFormValue("id")
-		if    {
+		if 0 != Client0.ZRank("2", id).Val() {
 			err_del := Client0.ZRem("2", id).Err()
-		if err_del != nil {
-			fmt.Println("del failed:", err_del)
+			if err_del != nil {
+				fmt.Println("del failed:", err_del)
+			}
+			err_del2 := Client0.ZRem("1", id).Err()
+			if err_del2 != nil {
+				fmt.Println("del2 failed:", err_del2)
+			}
+			fmt.Fprintf(w, " 已删除 ")
+
+		} else {
+			fmt.Fprintf(w, "未发现该设备")
 		}
-		err_del2 := Client0.ZRem("1", id).Err()
-		if err_del2 != nil {
-			fmt.Println("del2 failed:", err_del2)
-		}
-		fmt.Fprintf(w, " del OK ")
-			
-			
-		}
-		
+
 	}
 
 }
