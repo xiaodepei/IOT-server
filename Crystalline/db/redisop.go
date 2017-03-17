@@ -119,7 +119,7 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, " err ")
 	} else if "pass" == flag {
 		id := r.PostFormValue("id")
-		if {
+		if    {
 			err_del := Client0.ZRem("2", id).Err()
 		if err_del != nil {
 			fmt.Println("del failed:", err_del)
