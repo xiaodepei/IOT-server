@@ -1,1 +1,5 @@
-需要先装Redis
+依赖：Redis&redis-go驱动
+
+
+
+
