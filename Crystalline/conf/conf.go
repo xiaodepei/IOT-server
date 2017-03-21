@@ -7,9 +7,12 @@ import (
 	"gopkg.in/redis.v5"
 )
 
+////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////
+
 var Name = "admin"
 var key = "000000"
-var API_SEND_SERVER = "http://113.76.72.184:9090/main/int/"
+var API_SEND_SERVER = "http://119.29.142.168:81/main/int/"
 var Add_name = "add"
 var Del_name = "del"
 var Weight = []float64{0, 0}                                 //用于筛选有效指令求库交集使用设置权重
@@ -17,8 +20,6 @@ var Min_times = "0"                                          //用于watchdog中
 var flag = "0"                                               //用于在watch——dog进行清零动作的时候防止setip写入
 var sec int = 120                                            //方便在配置页面进行设置做的转换
 var Ticker = time.NewTicker(time.Duration(sec) * 1000000000) //用于设置watch——dog的检测时间间隔
-
-var device_id_length = 16
 
 var num = 0
 var num2 = 0
