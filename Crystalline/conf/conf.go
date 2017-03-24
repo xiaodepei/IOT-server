@@ -9,9 +9,10 @@ import (
 
 ////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////
+var Transmit_randkey = "1234567890123456789"
 
-var Name = "admin"
-var key = "000000"
+var Tempnum int = 0
+var API_AUTO_SERVER = "http://113.76.78.21:9090/main/auto_receive/"
 var API_SEND_SERVER = "http://119.29.142.168:81/main/int/"
 var Add_name = "add"
 var Del_name = "del"

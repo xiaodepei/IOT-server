@@ -2,7 +2,8 @@ package login
 
 import (
 	. "Crystalline/conf"
-	//	"fmt"
+	"fmt"
+	"net/http"
 )
 
 ///////////////////////////////////////////////////
@@ -20,4 +21,20 @@ func Getuser(name string, pwd string) (state string) {
 	}
 	return state
 
+}
+
+///////////////////////////////////////////////////
+//验证服务器是否处于联通状态
+//联通返回：online
+//出现问题：offline
+func Getwebalive(URL string) (state string) {
+	resp, err := http.Get(URL)
+	if err != nil {
+		fmt.Println("WEB端服务离线：", err)
+		state = "offline"
+	} else {
+		resp.Body.Close()
+		state = "online"
+	}
+	return state
 }
