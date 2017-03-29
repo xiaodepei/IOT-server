@@ -97,10 +97,11 @@ func Add_device(w http.ResponseWriter, r *http.Request) {
 	key := r.PostFormValue("key")
 	flag = Getuser(name, key)
 	if "no user" == flag {
-		fmt.Fprintf(w, " err ")
+		fmt.Fprintf(w, "no_user") //用户名密码错误
 	} else if "pass" == flag {
+
 		id := r.PostFormValue("id")
-		if 0 == Client0.ZRank("2", id).Val() {
+		if 0 == Client0.ZScore("2", id).Val() {
 			groupnum := r.PostFormValue("groupnum")
 			groupnumfloat, _ := strconv.ParseFloat(groupnum, 64)
 			err_add := Client0.ZAdd("1", redis.Z{0, id}).Err()
@@ -111,14 +112,14 @@ func Add_device(w http.ResponseWriter, r *http.Request) {
 			if err_add2 != nil {
 				fmt.Println("add2 failed:", err_add2)
 			}
-			fmt.Fprintf(w, "设备增加成功 ")
+			fmt.Fprintf(w, "1") //设备添加成功
 
 		} else {
-			fmt.Fprintf(w, "该设备已注册")
+			fmt.Fprintf(w, "0") //该设备已注册
 		}
 
 	}
-
+	return
 }
 func Delete_device(w http.ResponseWriter, r *http.Request) {
 
@@ -128,10 +129,16 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 	key := r.PostFormValue("key")
 	flag = Getuser(name, key)
 	if "no user" == flag {
-		fmt.Fprintf(w, " err ")
+		fmt.Fprintf(w, "no_user") //用户名密码错误
 	} else if "pass" == flag {
 		id := r.PostFormValue("id")
-		if 0 != Client0.ZRank("2", id).Val() {
+
+		//		fmt.Println(id)
+		//		a := Client0.ZRank("2", id).Val()
+		//		fmt.Println(a)
+		//		if 0 != a {
+
+		if 0 != Client0.ZScore("2", id).Val() {
 			err_del := Client0.ZRem("2", id).Err()
 			if err_del != nil {
 				fmt.Println("del failed:", err_del)
@@ -140,14 +147,14 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 			if err_del2 != nil {
 				fmt.Println("del2 failed:", err_del2)
 			}
-			fmt.Fprintf(w, " 已删除 ")
+			fmt.Fprintf(w, "1") //删除成功
 
 		} else {
-			fmt.Fprintf(w, "未发现该设备")
+			fmt.Fprintf(w, "0") //该设备不存在
 		}
 
 	}
-
+	return
 }
 
 //消息转发功能
@@ -155,35 +162,28 @@ func Transmit(Tempnum int, data string) {
 	fmt.Println("Transmit")
 	Client3.ZAdd("Transmit_flag", redis.Z{float64(1), float64(Tempnum)})
 	Client3.ZAdd("Transmit", redis.Z{float64(Tempnum), data})
-
 	//利用数据唯一码（Tempnum）标识已发送数据和因连接中断未能即使发送的数据
-	//	Tempnum_str := strconv.Itoa(Tempnum)
 	if Getwebalive(API_AUTO_SERVER) == "online" {
-
 		count := Client3.ZCount("Transmit_flag", "1", "1").Val()
 		list := Client3.ZRangeByScore("Transmit_flag", redis.ZRangeBy{"1", "1", 0, count}).Val()
-		//		list := Client3.ZRange("Transmit", 0, -1).Val()
 		for _, i := range list {
-			//			fmt.Println(i)
 			dat := Client3.ZRangeByScore("Transmit", redis.ZRangeBy{i, i, 0, 1}).Val()
+			//下面历遍dat仅仅是为了把数组转为string
 			for _, k := range dat {
-
 				crcvalue := Crccal(k)
 				packeddata := Code_json(k, Transmit_randkey, crcvalue)
 				pack := string(packeddata)
 				resp, err := http.PostForm(API_AUTO_SERVER, url.Values{"data": {pack}})
-				//			resp, err := http.PostForm(API_AUTO_SERVER, url.Values{"data": {"1234"}})
 				if err != nil {
 					fmt.Println("Auto_post failed", err)
 				} else {
+					//发送成功后将Transmit_flag中的flagscore置0表示可以drop
 					Client3.ZAdd("Transmit_flag", redis.Z{float64(0), i})
 					resp.Body.Close()
 				}
-
 			}
-
 		}
-		//		Client3.ZRemRangeByScore("Transmit", Tempnum_str, Tempnum_str)
+		//将Transmit_flag自身置零的以及Transmit中的已发送数据一并drop
 		count_0 := Client3.ZCount("Transmit_flag", "0", "0").Val()
 		list_0 := Client3.ZRangeByScore("Transmit_flag", redis.ZRangeBy{"0", "0", 0, count_0}).Val()
 		Client3.ZRemRangeByScore("Transmit_flag", "0", "0")

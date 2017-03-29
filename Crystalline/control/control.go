@@ -62,7 +62,9 @@ func Watch_dog() {
 		resp, err := http.PostForm(API_SEND_SERVER, url.Values{"sysinfo": {pack}})
 		if err != nil {
 			fmt.Println("离线数据发送失败", err)
+			//			Web_alive = false
 		} else {
+			//			Web_alive = true
 			resp.Body.Close()
 		}
 
