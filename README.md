@@ -25,16 +25,30 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 通讯协议
 ------
 硬件-server协议：
+
 - device：
 
-         UDP4心跳包：|   *  (单一符号)   | deviceID （5位str）|，外部移动网络发送间隔不得大于2min，端口暂定为54321
+         UDP4心跳包：|   *  (单一符号)   | deviceID | 外部移动网络发送间隔不得大于2min，端口暂定为54321
          
-         udp4数据包：|   #  (单一符号)   | deviceID（5位str） | randkey（19位str）| data（不得大于65535 str）
+         UDP4数据包：|   #  (单一符号)   | deviceID | randkey（19位str）| data（不得大于65535 str）
+         
+         UDP4ACK包： |   $  (单一符号)   | deviceID | 
 
 - server：
 
-         发送udp4数据：|deviceID (5位str) | randkey（19位str）| cmd （指令格式待定）
-        （后期加入ack返回包）
+         发送udp4数据：|deviceID  | randkey（19位str）| cmd （指令格式待定）
+        
+         返回UDP4ACK包：| $ (单一符号)  | deviceID 
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -43,9 +57,10 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 
 
 数据库-server协议：
+
 - redis：
 
-		redis：自带驱动tcp
+    	redis：自带驱动tcp
 
 请求方-server协议：
 
@@ -55,8 +70,9 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
                     post：XXX.XXX.XXX.XXX:8001 （后期版本改为url）
                           
 		携带参数：
-                    body：admin  （简单验证机制，后续版本改善）	
-				    key:    1 （这里是在redis——db0中注册编组的，想要控制那一组就写那一组）
+                    name:   XXXXX（用户名需要在redis中注册）	
+				    key:    XXXXX（用户名对应密码）
+                    groupnum: XX (硬件的逻辑分组，需要注册)
 		设备添加
 
 
@@ -95,11 +111,10 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 
         携带参数：
                     name:         xiaodepei(注册用户名)
-                    key:          123456(密码)
+                    key:          XXXXX(密码)
                     id:           XXXXXX（设备的唯一识别码或者就是上面的deviceid）
                     groupnum:     1(分组)
-                            
-                            
+                                      
         数据返回：
                     "add ok"
 
@@ -111,10 +126,9 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
         携带参数：
                     name:         xiaodepei(注册用户名)
                     key:          123456(密码)
-                    id:           XXXXXX（设备的唯一识别码或者就是上面的deviceid）
-                  
-                            
-        数据返回：
+                    id:           XXXXXX（设备的唯一识别码或者就是上面的deviceid）                         
+       
+       数据返回：
                     "del ok"
 
 
@@ -172,12 +186,24 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 					       12345    192.168.0.1:8080
 					      54321    127.0.0.1:8000
 
-			    	——db2（用于做接收采集数据的缓冲池，不需要手动建立，有序集合）内部数据不保留
-				    	——   row   |       value      |   score
+			    ——db2（用于做接收采集数据的缓冲池，不需要手动建立，有序集合）内部数据不保留
+				    ——0分组（用于主动采集数据缓冲）
+                        ——   row   |       value      |   score
 				    	      1	        deviceID+data    randkey
-					
-				    		......
-**不用再使用数据库进行data数据传输，同时mysql的godriver有问题，有超时连接的bug，高速数据写入以后不要用。**
+					——Transmit分组（用于设备主动发送数据的缓存）
+                    
+			            ——  row   |       value      |   score
+                            1            data           Tempnum                        
+                        
+                    ——Transmit_flag分组（用于对硬件主动发送的数据做状态标记，未发送给服务器的数据标记为1,已发送的数据标记为0等待系统清除）
+                        ——  row   |       value      |   score
+                            1            Tempnum           1或2
+                              
+                ——db3（用于平台用户注册）
+                        ——  key   |   value  
+                            name      psd
+                            
+
 
 	
 更新信息：
@@ -199,13 +225,16 @@ v1.6版本更改了通讯协议，即增加了randkey这一设备回应追踪机
 		新增模块——设备添加与删除模块
 	3-18:
 		修改了设备增加与删除部分的权限验证机制
+        
+        
+    4-1:已加入debug模块，独立于主程序外
 
 
 版本改进计划：
-    ①加入ACK信号，方便硬件确认数据完整性
+    ①加入ACK信号，方便硬件确认数据完整性，（已完成）
     ②改为可视化控制台，自由配置通讯数据格式
     ③进一步优化性能，提高并发量
-    ④创建转发fifo，对接收到的数据自动进行转发，先入先出原则，
+    ④创建转发fifo，对接收到的数据自动进行转发，先入先出原则，（已完成）
     ⑤指令扩展，增加平台对设备的指令多样化。
 
 
