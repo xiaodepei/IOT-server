@@ -12,8 +12,20 @@ import (
 var Transmit_randkey = "1234567890123456789"
 
 var Tempnum int = 0
-var API_AUTO_SERVER = "http://113.76.78.21:9090/main/auto_receive/"
-var API_SEND_SERVER = "http://119.29.142.168:81/main/int/"
+var Getwebalive_flag = "online"
+
+var API_AUTO_SERVER = "http://127.0.0.1:81/main/auto_receive/"
+var API_SEND_SERVER = "http://127.0.0.1:81/main/int/"
+
+//var API_AUTO_SERVER = "http://www.crystoneiot.com:81/main/auto_receive/"
+//var API_SEND_SERVER = "http://www.crystoneiot.com:81/main/int/"
+
+//GIS备用服务器版本使用真实IP地址
+//var API_AUTO_SERVER = "http://112.74.179.11:81/main/auto_receive/"
+//var API_SEND_SERVER = "http://112.74.179.11:81/main/int/"
+
+//var API_AUTO_SERVER = "http://119.29.142.168:81/main/auto_receive/"
+//var API_SEND_SERVER = "http://119.29.142.168:81/main/int/"
 var Add_name = "add"
 var Del_name = "del"
 var Weight = []float64{0, 0}                                 //用于筛选有效指令求库交集使用设置权重
@@ -22,15 +34,15 @@ var flag = "0"                                               //用于在watch—
 var sec int = 120                                            //方便在配置页面进行设置做的转换
 var Ticker = time.NewTicker(time.Duration(sec) * 1000000000) //用于设置watch——dog的检测时间间隔
 
-var num = 0
+var Num = 0
 var num2 = 0
 var Client0 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       3,          // use default DB
 })
 var Client1 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       4,          // use default DB
 })
@@ -40,7 +52,7 @@ var Client1 = redis.NewClient(&redis.Options{
 //var client2, err = sql.Open("mysql", "mdp:mdptest@tcp(45.124.65.33:3306)/mdptest")
 
 var Client3 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       5,          // use default DB
 })
@@ -55,7 +67,7 @@ var Socket_recv_heart, Err_recv_heart = net.ListenUDP("udp4", &net.UDPAddr{
 	Port: UDP_PORT_RECV_heart,
 })
 var Client4 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       6,          // use default DB
 })

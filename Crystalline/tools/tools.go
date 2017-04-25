@@ -59,7 +59,7 @@ func Substr(str string, start, length int) string {
 }
 
 func Crccal(data string) (result uint32) {
-	fmt.Println("crccal")
+	//	fmt.Println("crccal")
 	var crc32key = crc32.MakeTable(0xD5828281)
 	databyte := []byte(data)
 	result1 := crc32.Checksum(databyte, crc32key)
@@ -69,7 +69,7 @@ func Crccal(data string) (result uint32) {
 }
 
 func Code_json(datastr string, randkey string, crcvalue uint32) (result []byte) {
-	fmt.Println("codejson")
+	//	fmt.Println("codejson")
 	pack := &datatype{
 		Randkey:  randkey,
 		Data:     datastr,

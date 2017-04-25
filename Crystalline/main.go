@@ -18,7 +18,7 @@ func main() {
 }
 func Httpserver() {
 
-	http.HandleFunc("/", Login) //设置访问的路由
+	http.HandleFunc("/control", Login) //设置访问的路由
 	http.HandleFunc("/add", Add_device)
 	http.HandleFunc("/del", Delete_device)
 	http.ListenAndServe(":8001", nil) //设置监听的端口

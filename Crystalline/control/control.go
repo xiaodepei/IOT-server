@@ -49,7 +49,7 @@ func Watch_dog() {
 		Client0.ZRemRangeByScore("Offline", "0", "0") //开始之前首先删除上次的离线设备数据
 		result := Client0.ZRevRangeByScore("1", redis.ZRangeBy{Min_times, Min_times, 0, 0}).Val()
 
-		fmt.Println(result) //历遍数组找出offline设备
+		//		fmt.Println(result) //历遍数组找出offline设备
 		for _, i := range result {
 			Client0.ZAdd("Offline", redis.Z{0, i}) //将离线设备进行记录
 		}
@@ -58,7 +58,7 @@ func Watch_dog() {
 		crcvalue := Crccal(resultstr)
 		packeddata := Code_json(resultstr, "offline_device", crcvalue)
 		pack := string(packeddata)
-		fmt.Println(resultstr) //历遍数组找出offline设备
+		//		fmt.Println(resultstr) //历遍数组找出offline设备
 		resp, err := http.PostForm(API_SEND_SERVER, url.Values{"sysinfo": {pack}})
 		if err != nil {
 			fmt.Println("离线数据发送失败", err)
@@ -75,7 +75,39 @@ func Watch_dog() {
 			Client0.ZAdd("1", redis.Z{0, mumber})
 
 		}
+		Getwebalive_flag = Getwebalive(API_AUTO_SERVER) //获取远程端口状态
+		predata := Client3.ZCard("Transmit").Val()
+		if predata > 0 {
+			go Send_store(predata)
+		}
 
 		fmt.Printf("ticked at %v ", time.Now())
 	}
+}
+
+func Send_store(datanum int64) {
+	var a int64
+	for a = 0; a < datanum; a++ {
+		list := Client3.ZRangeByScore("Transmit", redis.ZRangeBy{"1", "1", 0, 1}).Val()
+		result := Client3.ZRem("Transmit", list).Val()
+		if result == 1 {
+			fmt.Println("send store!!!!!")
+		}
+		for _, i := range list {
+			crcvalue := Crccal(i)
+			packeddata := Code_json(i, Transmit_randkey, crcvalue)
+			pack := string(packeddata)
+			resp, err := http.PostForm(API_AUTO_SERVER, url.Values{"data": {pack}})
+
+			if err != nil {
+				fmt.Println("Auto_post failed", err)
+			} else {
+				//发送成功后将Transmit_flag中的flagscore置0表示可以drop
+				resp.Body.Close()
+			}
+
+		}
+
+	}
+
 }
