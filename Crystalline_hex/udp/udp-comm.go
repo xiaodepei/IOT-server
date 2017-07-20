@@ -6,6 +6,7 @@ import (
 	"net"
 	"strings"
 
+	. "Crystalline_hex/alert"
 	. "Crystalline_hex/conf"
 	. "Crystalline_hex/db"
 	. "Crystalline_hex/tools"
@@ -29,9 +30,7 @@ func Udp_port() {
 			continue
 		}
 		go selection(data[:read], address)
-
 	}
-
 }
 
 func selection(data []byte, address *net.UDPAddr) {
@@ -45,7 +44,7 @@ func selection(data []byte, address *net.UDPAddr) {
 		Writedown_data(data_str)
 	case Mask_heartbeat:
 		//		fmt.Println(data_str)
-		data_str = strings.TrimLeft(data_str, "2a") //用于统一端口接受数据类型前置码
+		data_str = strings.TrimLeft(data_str, Mask_heartbeat) //用于统一端口接受数据类型前置码
 		//		fmt.Println(data_str)
 		Setdownip(data_str, address)
 	case Mask_reboot:
@@ -56,14 +55,17 @@ func selection(data []byte, address *net.UDPAddr) {
 }
 
 func Confirm(data string) {
-
-	data = Substr(data, 8, Device_id_length)
+	fmt.Println(data)
+	//	data = Substr(data, 8, Device_id_length)
 	value := Client1.Get(data).Val()
+
+	fmt.Println(value)
 	udpip, _ := net.ResolveUDPAddr("udp4", value)
 	senddata := Mask_reboot + data
 	hex_senddata, _ := hex.DecodeString(senddata)
 	_, Err_recv_heart = Socket_recv_heart.WriteToUDP(hex_senddata, udpip)
 	if Err_recv_heart != nil {
+		Alert_to_weichat("确认信号发送失败！")
 		fmt.Println("确认信号发送失败!", Err_recv_heart)
 		return
 	}
@@ -109,6 +111,7 @@ func Sendcmd(client1 *redis.Client, address string, randkey string) {
 	//	senddata := []byte(address + randkey)
 	_, Err_recv_heart = Socket_recv_heart.WriteToUDP(senddata, udpip)
 	if Err_recv_heart != nil {
+		Alert_to_weichat("发送UDP失败（sendcmd）！")
 		fmt.Println("发送数据失败!", Err_recv_heart)
 		return
 	}

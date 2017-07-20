@@ -21,6 +21,9 @@ import (
 //var API_SEND_SERVER string
 var Url_1 string
 var Url_1_auto string
+var Url_2 string
+var Url_2_auto string
+var Alert_ip string
 
 //var API_AUTO_SERVER = "http://www.crystoneiot.com:81/main/auto_receive/"
 //var API_SEND_SERVER = "http://www.crystoneiot.com:81/main/int/"
@@ -34,6 +37,7 @@ var Url_1_auto string
 var Add_name string
 var Del_name string
 var Devicecode1 string
+var Devicecode2 string
 
 var Weight = []float64{0, 0} //用于筛选有效指令求库交集使用设置权重
 var Min_times = "0"          //用于watchdog中的心跳筛选，最小值。
@@ -78,6 +82,12 @@ var Socket_recv_heart, Err_recv_heart = net.ListenUDP("udp4", &net.UDPAddr{
 	IP:   net.IPv4(0, 0, 0, 0),
 	Port: 54321,
 })
+
+var Socket_alert, Err_socket_alert = net.ListenUDP("udp4", &net.UDPAddr{
+	IP: net.IPv4(0, 0, 0, 0),
+	//	Port: 52100,
+})
+
 var Client4 = redis.NewClient(&redis.Options{
 	Addr:     "localhost:6379",
 	Password: "xiaodepe", //  password set
@@ -122,11 +132,19 @@ func init() {
 
 	Devicecode1 = configdata.String("Devicecode1") //数据类别前置码1
 
+	Devicecode2 = configdata.String("Devicecode2") //数据类别前置码1
+
 	Mask_data = configdata.String("Mask_data") //数据前置掩码
 
 	Url_1 = configdata.String("Url_1") //获取第一目标地址
 
 	Url_1_auto = configdata.String("Url_1_auto") //获取第一目标的自动转发地址
+
+	Url_2 = configdata.String("Url_2") //获取第二目标地址
+
+	Url_2_auto = configdata.String("Url_2_auto") //获取第二目标的自动转发地址
+
+	Alert_ip = configdata.String("Alert_ip")
 
 	Mask_data = configdata.String("Mask_data") //数据前置掩码
 
@@ -134,5 +152,8 @@ func init() {
 
 	UDP_PORT_RECV_heart, _ = configdata.Int("UDP_PORT_RECV_heart") //UDP与设备通讯的开放端口
 	//	UDP_PORT_RECV_heart = 54321
+
+	Client3.HSet("website", Url_1_auto, Devicecode1)
+	Client3.HSet("website", Url_2_auto, Devicecode2)
 
 }

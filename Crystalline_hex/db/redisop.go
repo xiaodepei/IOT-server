@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"time"
 
+	. "Crystalline_hex/alert"
 	. "Crystalline_hex/conf"
 	. "Crystalline_hex/login"
 	. "Crystalline_hex/tools"
@@ -23,7 +24,7 @@ func Setdownip(data string, address *net.UDPAddr) {
 	ipaddr := AnalyzeMessage([]byte(address.String()), len(address.String()))
 	ipinfo := string(ipaddr[0]) + ":" + string(ipaddr[1])
 	//	fmt.Println("1111")
-	data = Substr(data, Devicecode_length, Device_id_length)
+	data = Substr(data, 0, Device_id_length+Devicecode_length)
 	Client1.Set(data, ipinfo, 0).Err()
 	Client0.ZIncrBy("1", 1, data) //在db0的“1”中开一个全注册设备表，并对接收到心跳的进行标记+1s
 	return
@@ -31,7 +32,7 @@ func Setdownip(data string, address *net.UDPAddr) {
 
 func Writedown_data(data string) {
 
-	id := Substr(data, Devicecode_length, Device_id_length)         //分离出deviceid
+	id := Substr(data, 0, Device_id_length+Devicecode_length)       //分离出deviceid
 	randkey := Substr(data, Devicecode_length+Device_id_length, 18) //分离出randkey
 
 	if randkey != Transmit_randkey {
@@ -172,30 +173,34 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 func Transmit(data string) {
 	fmt.Println("Transmit", Num)
 	//	var API_AUTO_SERVER string
+	device_code := Substr(data, 0, Devicecode_length)
 	data_format := []string{data}
 	if Getwebalive_flag == "online" {
 		//	fmt.Println("123123133")
-		result, url := Code_format(data_format, Transmit_randkey)
+
+		result, url_ := Code_format(data_format, Transmit_randkey)
+		//		fmt.Println(url)
 		//		a := [][]byte{result, data_format}
 		//		data_format = bytes.Join(a, []byte(""))
 		//		pack := Code_json_data(data_format, Transmit_randkey)
 
 		fmt.Println(string(result))
 		body := bytes.NewBuffer(result)
-		resp, err := http.Post(url, "Auto", body)
+		resp, err := http.Post(url_, "Auto", body)
 		if err != nil {
+			Alert_to_weichat("Transmit 发送失败")
 			Client3.ZAdd("log", redis.Z{1, time.Now().String()})
 			Num = Num + 1
 			fmt.Println("Auto_post failed", err)
 			fmt.Println("save")
-			Client3.ZAdd("Transmit", redis.Z{1, data})
+			Client3.ZAdd(device_code, redis.Z{1, data})
 		} else {
 			resp.Body.Close()
 		}
 
 	} else {
 		fmt.Println("save")
-		Client3.ZAdd("Transmit", redis.Z{1, data})
+		Client3.ZAdd(device_code, redis.Z{1, data})
 	}
 }
 

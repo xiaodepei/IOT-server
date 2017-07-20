@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
+	//	"strings"
 	"time"
 
+	. "Crystalline_hex/alert"
 	. "Crystalline_hex/conf"
 	. "Crystalline_hex/login"
 	. "Crystalline_hex/tools"
@@ -50,28 +51,26 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func Watch_dog() {
 	for _ = range Ticker.C {
+
 		Client0.ZRemRangeByScore("Offline", "0", "0") //开始之前首先删除上次的离线设备数据
 		result := Client0.ZRevRangeByScore("1", redis.ZRangeBy{Min_times, Min_times, 0, 0}).Val()
 
-		//		fmt.Println(result) //历遍数组找出offline设备
 		for _, i := range result {
 			Client0.ZAdd("Offline", redis.Z{0, i}) //将离线设备进行记录
 		}
-		//发送report
-		resultstr := strings.Join(result, " ")
-		//		crcvalue := Crccal(resultstr)
-		//		packeddata := Code_json_message(resultstr, "offline_device")
-		//		pack := string(packeddata)
-		//		fmt.Println(resultstr) //历遍数组找出offline设备
-		resp, err := http.PostForm(Url_1, url.Values{"sysinfo": {resultstr}})
-		if err != nil {
-			fmt.Println("离线数据发送失败", err)
-			//			Web_alive = false
-		} else {
-			//			Web_alive = true
-			resp.Body.Close()
-		}
 
+		for _, i := range result {
+			//resultstr := strings.Join(result, " ")
+			uRl, deviceid := Show_url(i)
+			resp, err := http.PostForm(uRl, url.Values{"offline": {deviceid}})
+			//resp, err := http.Post(url, "offlinedevice", deviceid)
+			if err != nil {
+				fmt.Println("离线数据发送失败", err)
+				Alert_to_weichat("离线数据发送失败")
+			} else {
+				resp.Body.Close()
+			}
+		}
 		devicenumber := Client0.ZCard("1").Val()
 		num := Client0.ZRange("1", 0, devicenumber).Val()
 		//		fmt.Println(num)
@@ -79,26 +78,34 @@ func Watch_dog() {
 			Client0.ZAdd("1", redis.Z{0, mumber})
 
 		}
+		url_group := Client3.HKeys("website").Val()
+		for _, i := range url_group {
+			Getwebalive_flag = Getwebalive(i) //获取远程端口状态
+			if Getwebalive_flag == "online" {
+				device_code := Client3.HGet("website", i).Val()
+				predata := Client3.ZCard(device_code).Val()
+				if predata > 0 {
+					go Send_store(predata, device_code)
+				}
+			} else {
 
-		Getwebalive_flag = Getwebalive(Url_1_auto) //获取远程端口状态
-		if Getwebalive_flag == "online" {
-			predata := Client3.ZCard("Transmit").Val()
-			if predata > 0 {
-				go Send_store(predata)
+				fmt.Println(i, "offline")
 			}
+
 		}
+
 		fmt.Printf("ticked at %v ", time.Now())
 	}
 }
 
-func Send_store(datanum int64) {
+func Send_store(datanum int64, device_code string) {
 	var a int64
-	fmt.Println(999999 + datanum)
+	//fmt.Println(999999 + datanum)
 	for a = 0; a < datanum; a++ {
-		list := Client3.ZRangeByScore("Transmit", redis.ZRangeBy{"1", "1", 0, 1}).Val()
+		list := Client3.ZRangeByScore(device_code, redis.ZRangeBy{"1", "1", 0, 1}).Val()
 		fmt.Println(list)
 		for _, i := range list {
-			result := Client3.ZRem("Transmit", i).Val()
+			result := Client3.ZRem(device_code, i).Val()
 			fmt.Println(i)
 			if result == 1 {
 				fmt.Println("send store!!!!!")
