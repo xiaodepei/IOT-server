@@ -1,8 +1,9 @@
 package login
 
 import (
-	"fmt"
+	//	"fmt"
 	"net/http"
+	//	"net/url"
 
 	. "Crystalline_hex/conf"
 )
@@ -55,19 +56,33 @@ func Getuser(name string, pwd string) (state string) {
 //	return state
 //}
 
-func Getwebalive(URL string) (state string) {
-	resp, err := http.Get(URL)
-	if err != nil {
-		fmt.Println("WEBserver——offline")
-		state = "offline"
+//func Getwebalive(URL_ string) (state string) {
+//	resp, err := http.Get(URL_)
+//	fmt.Println(resp)
+//	if err != nil {
+//		fmt.Println(err)
+//		state = "offline"
 
+//	} else {
+//		a := resp.StatusCode
+//		if a == 200 {
+//			state = "online"
+//			resp.Body.Close()
+//		}
+
+//	}
+//	return state
+//}
+
+func Getwebalive(URL_ string) (state string) {
+	resp, _ := http.Get(URL_)
+	a := resp.StatusCode
+	if a == 200 {
+		state = "online"
+		resp.Body.Close()
 	} else {
-		a := resp.StatusCode
-		if a == 200 {
-			state = "online"
-			resp.Body.Close()
-		}
-
+		state = "offline"
+		resp.Body.Close()
 	}
 	return state
 }

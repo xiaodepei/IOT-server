@@ -140,13 +140,13 @@ func Code_format(data []string, randkey string) (data_format []byte, url string)
 	//	randkey := Substr(data, Device_id_length+Devicecode_length, Randkey_length)
 	//data = Substr(datastr, Device_id_length+Devicecode_length+Randkey_length, len(data)-Device_id_length+Devicecode_length+Randkey_length)
 	switch devicecode {
-	//	case Devicecode1:
-	//		data_format = Format_1(data, randkey)
-	//		if randkey != Transmit_randkey {
-	//			url = Url_1
-	//		} else {
-	//			url = Url_1_auto
-	//		}
+	case Devicecode1:
+		data_format = Format_2(data, randkey)
+		if randkey != Transmit_randkey {
+			url = Url_1
+		} else {
+			url = Url_1_auto
+		}
 
 	case Devicecode2:
 		data_format = Format_2(data, randkey)

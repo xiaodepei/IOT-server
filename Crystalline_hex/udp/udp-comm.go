@@ -24,7 +24,7 @@ func Udp_port() {
 	for {
 		data := make([]byte, 1024)
 		read, address, err := Socket_recv_heart.ReadFromUDP(data)
-		fmt.Println(read)
+		//		fmt.Println(read)
 		if err != nil {
 			fmt.Println("读取数据失败", err)
 			continue
@@ -36,7 +36,7 @@ func Udp_port() {
 func selection(data []byte, address *net.UDPAddr) {
 	data_str := hex.EncodeToString(data)
 	flag := Substr(data_str, 0, 2)
-	fmt.Println(data_str)
+	//	fmt.Println(data_str)
 	switch flag {
 	case Mask_data:
 		data_str = strings.TrimLeft(data_str, Mask_data) //用于统一端口接受数据类型前置码

@@ -95,7 +95,8 @@ var Client4 = redis.NewClient(&redis.Options{
 })
 
 var Transmit_randkey string
-var Getwebalive_flag string
+
+//var Getwebalive_flag string
 
 func init() {
 
@@ -107,7 +108,7 @@ func init() {
 
 	Transmit_randkey = configdata.String("Transmit_randkey") //触发自动转发的randkey
 
-	Getwebalive_flag = configdata.String("Getwebalive_flag") //判断网站后端是否在线
+	//	Getwebalive_flag = configdata.String("Getwebalive_flag") //判断网站后端是否在线
 
 	//	API_AUTO_SERVER = configdata.String("API_AUTO_SERVER") //自动转发的网站地址
 
@@ -155,5 +156,8 @@ func init() {
 
 	Client3.HSet("website", Url_1_auto, Devicecode1)
 	Client3.HSet("website", Url_2_auto, Devicecode2)
+
+	Client3.HSet("website_state", Devicecode1, "online")
+	Client3.HSet("website_state", Devicecode2, "online")
 
 }

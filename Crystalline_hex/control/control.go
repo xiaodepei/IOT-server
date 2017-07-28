@@ -51,7 +51,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func Watch_dog() {
 	for _ = range Ticker.C {
-
+		Alert_to_weichat("开始")
 		Client0.ZRemRangeByScore("Offline", "0", "0") //开始之前首先删除上次的离线设备数据
 		result := Client0.ZRevRangeByScore("1", redis.ZRangeBy{Min_times, Min_times, 0, 0}).Val()
 
@@ -62,6 +62,7 @@ func Watch_dog() {
 		for _, i := range result {
 			//resultstr := strings.Join(result, " ")
 			uRl, deviceid := Show_url(i)
+			//			fmt.Println(i)
 			resp, err := http.PostForm(uRl, url.Values{"offline": {deviceid}})
 			//resp, err := http.Post(url, "offlinedevice", deviceid)
 			if err != nil {
@@ -71,6 +72,7 @@ func Watch_dog() {
 				resp.Body.Close()
 			}
 		}
+		fmt.Println("11111")
 		devicenumber := Client0.ZCard("1").Val()
 		num := Client0.ZRange("1", 0, devicenumber).Val()
 		//		fmt.Println(num)
@@ -79,18 +81,36 @@ func Watch_dog() {
 
 		}
 		url_group := Client3.HKeys("website").Val()
+		fmt.Println(url_group)
 		for _, i := range url_group {
-			Getwebalive_flag = Getwebalive(i) //获取远程端口状态
+			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+			Getwebalive_flag := Getwebalive(i) //获取远程端口状态
+			fmt.Println(Getwebalive_flag)
+			code := Client3.HGet("website", i).Val()
+			fmt.Println("33333")
+			fmt.Println(code)
+			time.Sleep(10000)
+			fmt.Println("44444")
+			err := Client3.HSet("website_state", code, Getwebalive_flag).Err()
+			fmt.Println("55555")
+			if err != nil {
+				fmt.Println("ahahahahahahahah", err)
+			}
 			if Getwebalive_flag == "online" {
-				device_code := Client3.HGet("website", i).Val()
-				predata := Client3.ZCard(device_code).Val()
+				fmt.Println("66666")
+				predata := Client3.ZCard(code).Val()
+				fmt.Println("77777")
+				fmt.Println(predata)
 				if predata > 0 {
-					go Send_store(predata, device_code)
+					go Send_store(predata, code)
 				}
 			} else {
-
+				fmt.Println("888888")
+				Alert_to_weichat(i + "offline")
 				fmt.Println(i, "offline")
+				fmt.Println("999999")
 			}
+			fmt.Println("10101010")
 
 		}
 
@@ -102,17 +122,19 @@ func Send_store(datanum int64, device_code string) {
 	var a int64
 	//fmt.Println(999999 + datanum)
 	for a = 0; a < datanum; a++ {
+		fmt.Println("1")
 		list := Client3.ZRangeByScore(device_code, redis.ZRangeBy{"1", "1", 0, 1}).Val()
-		fmt.Println(list)
+		//		fmt.Println(list)
 		for _, i := range list {
+			fmt.Println("2")
 			result := Client3.ZRem(device_code, i).Val()
 			fmt.Println(i)
 			if result == 1 {
 				fmt.Println("send store!!!!!")
-
+				fmt.Println("3")
 				pack, url := Code_format(list, Transmit_randkey)
-
-				fmt.Println(string(pack))
+				fmt.Println("4")
+				//				fmt.Println(string(pack))
 				body := bytes.NewBuffer(pack)
 				resp, err := http.Post(url, "send_store", body)
 

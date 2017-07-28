@@ -2,7 +2,7 @@ package db
 
 import (
 	"bytes"
-	"time"
+	//	"time"
 
 	. "Crystalline_hex/alert"
 	. "Crystalline_hex/conf"
@@ -171,11 +171,13 @@ func Delete_device(w http.ResponseWriter, r *http.Request) {
 }
 
 func Transmit(data string) {
-	fmt.Println("Transmit", Num)
+	//	fmt.Println("Transmit", Num)
 	//	var API_AUTO_SERVER string
 	device_code := Substr(data, 0, Devicecode_length)
 	data_format := []string{data}
-	if Getwebalive_flag == "online" {
+	//	fmt.Println(Getwebalive_flag)
+	website_state := Client3.HGet("website_state", device_code).Val()
+	if website_state == "online" {
 		//	fmt.Println("123123133")
 
 		result, url_ := Code_format(data_format, Transmit_randkey)
@@ -184,13 +186,13 @@ func Transmit(data string) {
 		//		data_format = bytes.Join(a, []byte(""))
 		//		pack := Code_json_data(data_format, Transmit_randkey)
 
-		fmt.Println(string(result))
+		//		fmt.Println(string(result))
 		body := bytes.NewBuffer(result)
 		resp, err := http.Post(url_, "Auto", body)
 		if err != nil {
 			Alert_to_weichat("Transmit 发送失败")
-			Client3.ZAdd("log", redis.Z{1, time.Now().String()})
-			Num = Num + 1
+			//			Client3.ZAdd("log", redis.Z{1, time.Now().String()})
+			//			Num = Num + 1
 			fmt.Println("Auto_post failed", err)
 			fmt.Println("save")
 			Client3.ZAdd(device_code, redis.Z{1, data})
