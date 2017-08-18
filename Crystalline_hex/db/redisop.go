@@ -31,10 +31,12 @@ func Setdownip(data string, address *net.UDPAddr) {
 }
 
 func Writedown_data(data string) {
-
-	id := Substr(data, 0, Device_id_length+Devicecode_length)       //分离出deviceid
+	fmt.Println("122222222222")
+	id := Substr(data, 0, Device_id_length+Devicecode_length) //分离出deviceid
+	fmt.Println(data)
 	randkey := Substr(data, Devicecode_length+Device_id_length, 18) //分离出randkey
-
+	fmt.Println("agagsdgasdg")
+	fmt.Println(randkey)
 	if randkey != Transmit_randkey {
 		groupnum := Client0.ZScore("0", randkey).Val() //获取randkey对应的设备数量
 
@@ -189,6 +191,7 @@ func Transmit(data string) {
 		//		fmt.Println(string(result))
 		body := bytes.NewBuffer(result)
 		resp, err := http.Post(url_, "Auto", body)
+
 		if err != nil {
 			Alert_to_weichat("Transmit 发送失败")
 			//			Client3.ZAdd("log", redis.Z{1, time.Now().String()})
@@ -197,6 +200,7 @@ func Transmit(data string) {
 			fmt.Println("save")
 			Client3.ZAdd(device_code, redis.Z{1, data})
 		} else {
+			//			resp.Close = true
 			resp.Body.Close()
 		}
 

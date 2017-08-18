@@ -51,13 +51,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func Watch_dog() {
 	for _ = range Ticker.C {
+		fmt.Println("ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd")
 		Alert_to_weichat("开始")
 		Client0.ZRemRangeByScore("Offline", "0", "0") //开始之前首先删除上次的离线设备数据
 		result := Client0.ZRevRangeByScore("1", redis.ZRangeBy{Min_times, Min_times, 0, 0}).Val()
-
+		fmt.Println("1111111111111111111111")
 		for _, i := range result {
 			Client0.ZAdd("Offline", redis.Z{0, i}) //将离线设备进行记录
 		}
+		fmt.Println("22222222222222222222222")
+		////////离线设备数量超过5K之后此处处理阻塞/////
 
 		for _, i := range result {
 			//resultstr := strings.Join(result, " ")
@@ -72,7 +75,10 @@ func Watch_dog() {
 				resp.Body.Close()
 			}
 		}
-		fmt.Println("11111")
+		///////////////////////////////////////////////////////
+
+		fmt.Println("333333333333333333333333333")
+
 		devicenumber := Client0.ZCard("1").Val()
 		num := Client0.ZRange("1", 0, devicenumber).Val()
 		//		fmt.Println(num)
@@ -82,6 +88,8 @@ func Watch_dog() {
 		}
 		url_group := Client3.HKeys("website").Val()
 		fmt.Println(url_group)
+
+		////////////若站点不在线则轻度阻塞///////////////
 		for _, i := range url_group {
 			fmt.Println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 			Getwebalive_flag := Getwebalive(i) //获取远程端口状态
@@ -89,7 +97,7 @@ func Watch_dog() {
 			code := Client3.HGet("website", i).Val()
 			fmt.Println("33333")
 			fmt.Println(code)
-			time.Sleep(10000)
+			//			time.Sleep(10000)
 			fmt.Println("44444")
 			err := Client3.HSet("website_state", code, Getwebalive_flag).Err()
 			fmt.Println("55555")
@@ -113,6 +121,8 @@ func Watch_dog() {
 			fmt.Println("10101010")
 
 		}
+
+		//////////////////////////////////////////////////////////////
 
 		fmt.Printf("ticked at %v ", time.Now())
 	}

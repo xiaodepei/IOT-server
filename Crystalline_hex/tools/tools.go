@@ -141,7 +141,7 @@ func Code_format(data []string, randkey string) (data_format []byte, url string)
 	//data = Substr(datastr, Device_id_length+Devicecode_length+Randkey_length, len(data)-Device_id_length+Devicecode_length+Randkey_length)
 	switch devicecode {
 	case Devicecode1:
-		data_format = Format_2(data, randkey)
+		data_format = Format_1(data, randkey)
 		if randkey != Transmit_randkey {
 			url = Url_1
 		} else {
@@ -164,55 +164,25 @@ func Code_format(data []string, randkey string) (data_format []byte, url string)
 
 //下面是网关接收到的子设备的设备ID 以及数据
 //format1是耳标测温的数据
-func Format_1(data []string, randkey string) (result []byte) {
-	var I Item
-	for _, data_str := range data {
-		var D Datatype
-		gateway_id := Substr(data_str, Devicecode_length, Device_id_length)
-		data_tag := Substr(data_str, Devicecode_length+Randkey_length+Device_id_length, len(data_str)-Devicecode_length+Randkey_length-Device_id_length)
-		for a := 0; a < len(data_tag)/24; a++ {
-			data1 := Substr(data_tag, 24*a, 24)
-			id := Substr(data1, 0, 8)
-			tempature := Substr(data1, 8, 4)
-			tempature_int := Tempature_cover(tempature)
-			power := Substr(data1, 12, 4)
-			power_format := Power_cover(power)
-			D.Data = append(D.Data, Format1{Id: id, Tempature: tempature_int, Power: power_format})
-
-		}
-
-		I.Item = append(I.Item, Datatype{Gateway_id: gateway_id, Randkey: randkey, Data: D.Data})
-
-	}
-
-	result, err := json.Marshal(I)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	return result
-
-}
-
-//format——2是新版本gis(正版)
-//func Format_2(data []string, randkey string) (result []byte) {
-//	var I Item2
+//func Format_1(data []string, randkey string) (result []byte) {
+//	var I Item
 //	for _, data_str := range data {
-//		var D Datatype2
+//		var D Datatype
 //		gateway_id := Substr(data_str, Devicecode_length, Device_id_length)
 //		data_tag := Substr(data_str, Devicecode_length+Randkey_length+Device_id_length, len(data_str)-Devicecode_length+Randkey_length-Device_id_length)
-//		for a := 0; a < len(data_tag)/36; a++ {
-//			data1 := Substr(data_tag, 36*a, 36)
-//			id := Substr(data1, 0, 16)
-//			tempature_device := Substr(data1, 16, 4)
-//			tempature_device_int := Tempature_cover(tempature_device)
-//			tempature_enviroment := Substr(data1, 20, 4)
-//			tempature_enviroment_int := Tempature_cover(tempature_enviroment)
-//			power := Substr(data1, 24, 4)
+//		for a := 0; a < len(data_tag)/24; a++ {
+//			data1 := Substr(data_tag, 24*a, 24)
+//			id := Substr(data1, 0, 8)
+//			tempature := Substr(data1, 8, 4)
+//			tempature_int := Tempature_cover(tempature)
+//			power := Substr(data1, 12, 4)
 //			power_format := Power_cover(power)
-//			time_str := Substr(data1, 28, 8)
-//			D.Data = append(D.Data, Format2{Tag_id: id, Tempature_device: tempature_device_int, Tempature_enviroment: tempature_enviroment_int, Power: power_format, Time: time_str})
+//			D.Data = append(D.Data, Format1{Id: id, Tempature: tempature_int, Power: power_format})
+
 //		}
-//		I.Item = append(I.Item, Datatype2{Gateway_id: gateway_id, Randkey: randkey, Data: D.Data})
+
+//		I.Item = append(I.Item, Datatype{Gateway_id: gateway_id, Randkey: randkey, Data: D.Data})
+
 //	}
 
 //	result, err := json.Marshal(I)
@@ -223,8 +193,38 @@ func Format_1(data []string, randkey string) (result []byte) {
 
 //}
 
-//format——2是新版本gis（临时版本）
+//format——2是新版本gis(正版)
 func Format_2(data []string, randkey string) (result []byte) {
+	var I Item2
+	for _, data_str := range data {
+		var D Datatype2
+		gateway_id := Substr(data_str, Devicecode_length, Device_id_length)
+		data_tag := Substr(data_str, Devicecode_length+Randkey_length+Device_id_length, len(data_str)-Devicecode_length+Randkey_length-Device_id_length)
+		for a := 0; a < len(data_tag)/36; a++ {
+			data1 := Substr(data_tag, 36*a, 36)
+			id := Substr(data1, 0, 16)
+			tempature_device := Substr(data1, 16, 4)
+			tempature_device_int := Tempature_cover(tempature_device)
+			tempature_enviroment := Substr(data1, 20, 4)
+			tempature_enviroment_int := Tempature_cover(tempature_enviroment)
+			power := Substr(data1, 24, 4)
+			power_format := Power_cover(power)
+			time_str := Substr(data1, 28, 8)
+			D.Data = append(D.Data, Format2{Tag_id: id, Tempature_device: tempature_device_int, Tempature_enviroment: tempature_enviroment_int, Power: power_format, Time: time_str})
+		}
+		I.Item = append(I.Item, Datatype2{Gateway_id: gateway_id, Randkey: randkey, Data: D.Data})
+	}
+
+	result, err := json.Marshal(I)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return result
+
+}
+
+//format——1是新版本gis（临时demo版本）
+func Format_1(data []string, randkey string) (result []byte) {
 	var I Item2
 	for _, data_str := range data {
 		var D Datatype2
@@ -270,8 +270,14 @@ func Show_url(device_id string) (url string, deviceid string) {
 }
 
 func Tempature_cover(tempature string) (result int64) {
-	temp, _ := strconv.ParseInt(tempature, 16, 16)
-	result = temp / 10
+	s1 := Substr(tempature, 0, 2)
+	s2 := Substr(tempature, 2, 2)
+	temp_s1, _ := strconv.ParseInt(s1, 16, 16)
+
+	temp_s2, _ := strconv.ParseInt(s2, 16, 16)
+	result = temp_s1*256 + temp_s2
+
+	result = result / 10
 	return result
 }
 

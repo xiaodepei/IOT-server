@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	fmt.Println("system online_hex")
+	fmt.Println("system online_hex_prod")
 	go Udp_port()
 	go Watch_dog() //监视设备状态
 	Httpserver()

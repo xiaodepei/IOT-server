@@ -50,12 +50,12 @@ var Ticker *time.Ticker
 var Num = 0
 var num2 = 0
 var Client0 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       3,          // use default DB
 })
 var Client1 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       4,          // use default DB
 })
@@ -65,7 +65,7 @@ var Client1 = redis.NewClient(&redis.Options{
 //var client2, err = sql.Open("mysql", "mdp:mdptest@tcp(45.124.65.33:3306)/mdptest")
 
 var Client3 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       5,          // use default DB
 })
@@ -89,7 +89,7 @@ var Socket_alert, Err_socket_alert = net.ListenUDP("udp4", &net.UDPAddr{
 })
 
 var Client4 = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
+	Addr:     "localhost:6666",
 	Password: "xiaodepe", //  password set
 	DB:       6,          // use default DB
 })

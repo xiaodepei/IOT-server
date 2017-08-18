@@ -36,7 +36,7 @@ func Udp_port() {
 func selection(data []byte, address *net.UDPAddr) {
 	data_str := hex.EncodeToString(data)
 	flag := Substr(data_str, 0, 2)
-	//	fmt.Println(data_str)
+	fmt.Println(data_str)
 	switch flag {
 	case Mask_data:
 		data_str = strings.TrimLeft(data_str, Mask_data) //用于统一端口接受数据类型前置码
@@ -62,7 +62,9 @@ func Confirm(data string) {
 	fmt.Println(value)
 	udpip, _ := net.ResolveUDPAddr("udp4", value)
 	senddata := Mask_reboot + data
+	fmt.Println(senddata)
 	hex_senddata, _ := hex.DecodeString(senddata)
+	fmt.Println(hex_senddata)
 	_, Err_recv_heart = Socket_recv_heart.WriteToUDP(hex_senddata, udpip)
 	if Err_recv_heart != nil {
 		Alert_to_weichat("确认信号发送失败！")

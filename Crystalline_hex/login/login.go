@@ -76,13 +76,20 @@ func Getuser(name string, pwd string) (state string) {
 
 func Getwebalive(URL_ string) (state string) {
 	resp, _ := http.Get(URL_)
-	a := resp.StatusCode
-	if a == 200 {
-		state = "online"
-		resp.Body.Close()
+	if resp != nil {
+		a := resp.StatusCode
+		if a == 200 {
+			state = "online"
+			resp.Body.Close()
+		} else {
+			state = "offline"
+			resp.Body.Close()
+		}
+
 	} else {
 		state = "offline"
-		resp.Body.Close()
+
 	}
+
 	return state
 }
